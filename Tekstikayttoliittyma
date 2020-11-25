@@ -1,26 +1,4 @@
-
 package varausjarjestelma;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
-
-import java.util.*;
-import java.io.*;
-import java.text.*;
-import java.sql.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,330 +7,308 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Tehtava4 {
-   
+public class Tekstikayttoliittyma {
+    
+    
     @Autowired
-    JdbcTemplate jdbcTemplate;   
+    Tehtava1 tehtava1;
     
-    public static ArrayList<Lisavaruste> selvitaLisavarusteId(List<Lisavaruste> objLisavarusteet){//=============================================================================[LISÄVARUSTEEN ID:N SELVITTÄMINEN]
-        
-        ArrayList ObjOikeaIdLisavaruste = new ArrayList();        
-        
-        try (Connection conn = DriverManager.getConnection("jdbc:h2:./hotelliketju", "sa", "")) {         
-                     
-            String kysely = 
-            "select count * from Lisavaruste;";
-            
-           PreparedStatement statement = conn.prepareStatement(kysely);           
-           ResultSet resultSet = statement.executeQuery();
-           
-
-            while(resultSet.next()){
-               int id = resultSet.getInt("id");
-               String nimi = resultSet.getString("nimi");
-               for(Lisavaruste l : objLisavarusteet){
-                   if(l.getNimi().equals(nimi)){l.setId(id);}
-                   ObjOikeaIdLisavaruste.add(l);
-               }
-           }   
-           
-        } catch (SQLException ex) {
-            Logger.getLogger(VarausjarjestelmaSovellus.class.getName()).log(Level.SEVERE, null, ex);
-        }   
-        return ObjOikeaIdLisavaruste;        
-    }//======================================================================================================================================================
+    @Autowired
+    Tehtava2 tehtava2;     
     
-    //=======================================================================================================================[VAPAIDEN HUONEIDEN TARKISTUS]   
-    public static int tarkistaOnkoHuoneita(LocalDate alku, LocalDate loppu){
-     
-    int huoneita = 0;    
-    try (Connection conn = DriverManager.getConnection("jdbc:h2:./hotelliketju", "sa", "")) {         
-          
-          
-            java.sql.Date sAlku = java.sql.Date.valueOf(alku);
-
-            java.sql.Date sLoppu = java.sql.Date.valueOf(loppu);      
-            
-            String kysely = 
-            "select count(*) AS huoneita from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?);";
-            
-           PreparedStatement statement = conn.prepareStatement(kysely);
-           statement.setDate(1, sLoppu);
-           statement.setDate(2, sAlku);
- 
-           
-           ResultSet resultSet = statement.executeQuery();
-           
-
-               while(resultSet.next()){
-               huoneita = resultSet.getInt("huoneita");          
-               
-           }   
-           
-        } catch (SQLException ex) {
-            Logger.getLogger(VarausjarjestelmaSovellus.class.getName()).log(Level.SEVERE, null, ex);
-        }   
-        return huoneita;
-     }//========================================================================================================================================
-      
-      
+    @Autowired
+    Tehtava2 tehtava3;
     
-    //=======================================================================================================================[VARAUS VAIN AJALLA}
-    public static void teeVaraus(LocalDate alku, LocalDate loppu, Asiakas asiakas, List<Lisavaruste> lisavarusteet){      
-          
-        //----------------------------------------------------------------------[A] VAPAIDEN HUONEIDEN MÄÄRÄN LISTAUS HAKUEHTOIHIN PERUSTUEN
-         try (Connection conn = DriverManager.getConnection("jdbc:h2:./hotelliketju", "sa", "")) {         
-          
-            java.sql.Date sAlku = java.sql.Date.valueOf(alku);
-            java.sql.Date sLoppu = java.sql.Date.valueOf(loppu);      
-            
-            String kysely = 
-            "select count(*) AS huoneita from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?);";
-            
-           PreparedStatement statement = conn.prepareStatement(kysely);
-           statement.setDate(1, sLoppu);
-           statement.setDate(2, sAlku);
- 
-           
-           ResultSet resultSet = statement.executeQuery();
-           
-           int huoneita = 0;
-           
+    
+    
+    public void kaynnista(Scanner lukija) {
+        while (true) {
+            System.out.println("Komennot: ");
+            System.out.println(" x - lopeta");
+            System.out.println(" 1 - lisaa huone");
+            System.out.println(" 2 - listaa huoneet");
+            System.out.println(" 3 - hae huoneita");
+            System.out.println(" 4 - lisaa varaus");
+            System.out.println(" 5 - listaa varaukset");
+            System.out.println(" 6 - tilastoja");
+            System.out.println("");
 
-               while(resultSet.next()){
-               huoneita = resultSet.getInt("huoneita");          
-               
-               System.out.println("|Vapaita Huoneita: " + huoneita);
-           }   
-          
-        } catch (SQLException ex) {
-            Logger.getLogger(VarausjarjestelmaSovellus.class.getName()).log(Level.SEVERE, null, ex);
-        }          
-          
-         
-        //----------------------------------------------------------------------[B] KÄYTTÄJÄN LISÄÄMINEN / PäIVITTÄMINEN
-        try (Connection conn = DriverManager.getConnection("jdbc:h2:./hotelliketju", "sa", "")) {                  
-        AsiakasDao asiakasDao = new AsiakasDao();
-         
-        if(asiakasDao.read(asiakas.getId()) == null){asiakasDao.create(asiakas);}
-        else{asiakasDao.update(asiakas);}
-         
-         
-        //----------------------------------------------------------------------[C] VARAUKSEN LISÄÄMINEN
-        Varaus varaus = new Varaus(alku, loppu, asiakas);
-        VarausDao varausDao = new VarausDao();
-        varausDao.create(varaus);
-        int gKey = varausDao.getGKey();
-        //System.out.println("gkey" + gKey);        
+            String komento = lukija.nextLine();
+            if (komento.equals("x")) {
+                break;
+            }
+
+            if (komento.equals("1")) {
+                lisaaHuone(lukija);
+            } else if (komento.equals("2")) {
+                listaaHuoneet();
+            } else if (komento.equals("3")) {
+                haeHuoneita(lukija);
+            } else if (komento.equals("4")) {
+                lisaaVaraus(lukija);
+            } else if (komento.equals("5")) {
+                listaaVaraukset();
+            } else if (komento.equals("6")) {
+                tilastoja(lukija);
+            }
+        }
+    }
+    
+    // TEHTÄVÄ 1
+    private static void lisaaHuone(Scanner s) {
+        System.out.println("Lisätään huone");
+        System.out.println("");
+
+        System.out.println("Minkä tyyppinen huone on?");
+        String tyyppi = s.nextLine();
+        System.out.println("Mikä huoneen numeroksi asetetaan?");
+        int numero = Integer.valueOf(s.nextLine());
+        System.out.println("Kuinka monta euroa huone maksaa yöltä?");
+        int hinta = Integer.valueOf(s.nextLine());
         
+        Huone huone = new Huone(numero, tyyppi, hinta);
+        Tehtava1.talennaHuone(huone);
+
+    }
+    
+    // TEHTÄVÄ 2
+    private static void listaaHuoneet() {
+        System.out.println("Listataan huoneet");
+        System.out.println("");
+
         
-        //----------------------------------------------------------------------[D] HUONEEN LIITTÄMINEN VARAUKSEEN 
-       
-        //[1] kalleimman huoneen selvittäminen
- 
-        java.sql.Date sAlku = java.sql.Date.valueOf(alku);
-        java.sql.Date sLoppu = java.sql.Date.valueOf(loppu);      
-            
-        String kysely = 
-        //"select max(Huone.paivahinta), huone.numero from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?);";
-        "select max(Huone.paivahinta), huone.numero from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?) group by Huone.numero order by Huone.paivahinta desc;";
-        PreparedStatement statement = conn.prepareStatement(kysely);
-        statement.setDate(1, sLoppu);
-        statement.setDate(2, sAlku);
- 
-        ResultSet resultSet = statement.executeQuery();
-         
-        int numero = 0;
-        ArrayList<Integer> numerot = new ArrayList();
-        while(resultSet.next()){
-            numero = resultSet.getInt("numero"); 
-            numerot.add(numero);
-        }            
-           
-        numero = numerot.get(0);
-        System.out.println("numero: " + numero);
-        System.out.println(gKey);
+        Tehtava2.listaaHuoneet();
         
-        //[2] Huoneen ja varauksen ykilöivien avainten liittäminen HuoneVaraus tauluun  
-           
-        String kysely2 = 
-        "INSERT INTO HuoneVaraus (huone_numero, varaus_id) VALUES(?, ?);";
-        PreparedStatement statement2 = conn.prepareStatement(kysely2);
-        System.out.println("Lisätty huoneen numero: " + numero);
-        System.out.println("Lisätty varauksen id: " + gKey);
-        statement2.setInt(1, numero);
-        statement2.setInt(2, gKey);
- 
-        statement2.executeUpdate();
-           
+        // esimerkkitulostus -- tässä oletetaan, että huoneita on 4
+        // tulostuksessa tulostetaan huoneen tyyppi, huoneen numero sekä hinta
+        //System.out.println("Excelsior, 604, 119 euroa");
+        //System.out.println("Excelsior, 605, 119 euroa");
+        //System.out.println("Superior, 705, 159 euroa");
+        //System.out.println("Commodore, 128, 229 euroa");
+    }
+
+    
+    // TEHTÄVÄ 3
+    private static void haeHuoneita(Scanner s) {
+        System.out.println("Haetaan huoneita");
+        System.out.println("");
+
+        System.out.println("Milloin varaus alkaisi (yyyy-MM-dd)?");;
+        LocalDate alku = LocalDate.parse(s.nextLine() + " " + "16:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        System.out.println("Milloin varaus loppuisi (yyyy-MM-dd)?");
+        LocalDate loppu = LocalDate.parse(s.nextLine() + " " + "10:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        System.out.println("Minkä tyyppinen huone? (tyhjä = ei rajausta)");
+        String tyyppi = s.nextLine();
+        System.out.println("Minkä hintainen korkeintaan? (tyhjä = ei rajausta)");
+        int maksimihinta = Integer.parseInt(s.nextLine());
+
+        // esimerkkitulostus -- tässä oletetaan, että vapaita huoneita löytyy 2
+
         
-        //----------------------------------------------------------------------[E] LISÄVARUSTEIDEN LIITTÄMINEN VARAUKSEEN
+        System.out.println("Vapaat huoneet: ");
         
-        for(Lisavaruste lisavarust : lisavarusteet){
-            
-            String kysely3 = 
-            "INSERT INTO LisavarusteVaraus (lisavaruste_id, varaus_id) VALUES(?, ?);";
-            PreparedStatement statement3 = conn.prepareStatement(kysely3);
-            System.out.println("Lisätty lisavarusteen id: " + lisavarust.getId());
-            System.out.println("Lisätty varauksen id: " + gKey);
-            statement3.setInt(1, lisavarust.getId());
-            statement3.setInt(2, gKey);
-            statement3.executeUpdate();
+        if(tyyppi.isEmpty()) {Tehtava3.haeHuoneet(alku, loppu);}        
+        else{Tehtava3.haeHuoneet(alku, loppu, tyyppi, maksimihinta);}
+        
+
+//System.out.println("Excelsior, 604, 119 euroa");
+        //System.out.println("Excelsior, 605, 119 euroa");
+
+        // vaihtoehtoisesti, mikäli yhtäkään huonetta ei ole vapaana, ohjelma
+        // tulostaa
+        //System.out.println("Ei vapaita huoneita.");
+
+    }
+    
+    // TEHTÄVÄ 4
+    private static void lisaaVaraus(Scanner s) {
+        System.out.println("Haetaan huoneita");
+        System.out.println("");
+
+        System.out.println("Milloin varaus alkaisi (yyyy-MM-dd)?");;
+        LocalDate alku = LocalDate.parse(s.nextLine() + " " + "16:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        System.out.println("Milloin varaus loppuisi (yyyy-MM-dd)?");
+        LocalDate loppu = LocalDate.parse(s.nextLine() + " " + "10:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        System.out.println("Minkä tyyppinen huone? (tyhjä = ei rajausta)");
+        String tyyppi = s.nextLine();
+        System.out.println("Minkä hintainen korkeintaan? (tyhjä = ei rajausta)");
+        String maksimihinta = s.nextLine();
+
+        // mikäli huoneita ei ole vapaana, ohjelma tulostaa seuraavan viestin
+        // ja varauksen lisääminen loppuu
+        int vapaaHuoneita = Tehtava4.tarkistaOnkoHuoneita(alku, loppu);
+        
+        boolean pelkkaAika = false;
+        if(tyyppi.isEmpty() || maksimihinta.isEmpty()){pelkkaAika = true;}
+        
+        if(vapaaHuoneita == 0){System.out.println("Ei vapaita huoneita.");}
+        // muulloin, ohjelma kertoo vapaiden huoneiden lukumäärän. Tässä 
+        // oletetaan että vapaita huoneita on 2.
+        else{System.out.println("Huoneita vapaana: " + vapaaHuoneita);}
+        System.out.println("");
+
+        // tämän jälkeen kysytään varattavien huoneiden lukumäärää
+        // luvuksi tulee hyväksyä vain sopiva luku, esimerkissä 3 ei esim
+        // kävisi, sillä vapaita huoneita vain 2
+        int huoneita = -1;
+        while (true) {
+            System.out.println("Montako huonetta varataan?");
+            huoneita = Integer.valueOf(s.nextLine());
+            if (huoneita >= 1 && huoneita <= 2) {
+                break;
+            }
+
+            System.out.println("Epäkelpo huoneiden lukumäärä.");
+        }
+
+        // tämän jälkeen kysytään lisävarusteet
+        List<String> lisavarusteet = new ArrayList<>();
+        while (true) {
+            System.out.println("Syötä lisävaruste, tyhjä lopettaa");
+            String lisavaruste = s.nextLine();
+            if (lisavaruste.isEmpty()) {
+                break;
+            }
+
+            if(Lisavaruste.lisavarusteLista.containsKey(lisavaruste)){lisavarusteet.add(lisavaruste);}
+            else{System.out.println("Lisävarustetta ei ollut listalla");}
         }
         
-        } catch (SQLException ex) {
-            Logger.getLogger(VarausjarjestelmaSovellus.class.getName()).log(Level.SEVERE, null, ex);
-        }                               
-      }//===============================================================================================================
-      
-    
-    
 
-        //==============================================================================================================[VARAUS AJALA, HUONETYYPILLÄ JA MAKSIMIHINNALLA]
-        public static void teeVaraus(LocalDate alku, LocalDate loppu, String tyyppi, int korkeinHinta, Asiakas asiakas, List<Lisavaruste> lisavarusteet){
-          
-          
-         
-        //[A] VAPAIDEN HUONEIDEN MÄÄRÄN LISTAUS HAKUEHTOIHIN PERUSTUEN
-          
-         try (Connection conn = DriverManager.getConnection("jdbc:h2:./hotelliketju", "sa", "")) {         
-          
-            java.sql.Date sAlku = java.sql.Date.valueOf(alku);
-            java.sql.Date sLoppu = java.sql.Date.valueOf(loppu);      
-            
-            String kysely = 
-            "select count(*) AS huoneita from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?);";
-            
-           PreparedStatement statement = conn.prepareStatement(kysely);
-           statement.setDate(1, sLoppu);
-           statement.setDate(2, sAlku);
- 
-           
-           ResultSet resultSet = statement.executeQuery();
-           
-           int huoneita = 0;
-           
-            while(resultSet.next()){
-               huoneita = resultSet.getInt("huoneita");          
-               
-               System.out.println("|Vapaita Huoneita: " + huoneita);
-            }   
-          
-        } catch (SQLException ex) {
-            Logger.getLogger(VarausjarjestelmaSovellus.class.getName()).log(Level.SEVERE, null, ex);
-        }          
-          
-         
-        //[B] KÄYTTÄJÄN LISÄÄMINEN / PäIVITTÄMINEN
-        try (Connection conn = DriverManager.getConnection("jdbc:h2:./hotelliketju", "sa", "")) {                  
-        AsiakasDao asiakasDao = new AsiakasDao();
-         
-        if(asiakasDao.read(asiakas.getId()) == null){asiakasDao.create(asiakas);}
-        else{asiakasDao.create(asiakas);}
-         
+        // ja lopuksi varaajan tiedot
+        System.out.println("Syötä varaajan nimi:");
+        String nimi = s.nextLine();
+        System.out.println("Syötä varaajan puhelinnumero:");
+        String puhelinnumero = s.nextLine();
+        System.out.println("Syötä varaajan sähköpostiosoite:");
+        String sahkoposti = s.nextLine();
 
-        //[C] VARAUKSEN LISÄÄMINEN
+        // kun kaikki tiedot on kerätty, ohjelma lisää varauksen tietokantaan
+        // -- varaukseen tulee lisätä kalleimmat vapaat huoneet!
         
-        Varaus varaus = new Varaus(alku, loppu,asiakas);
-        VarausDao varausDao = new VarausDao();
-        varausDao.create(varaus);
-        int gKey = varausDao.getGKey();
-       System.out.println("gkey" + gKey);        
-        //[D] HUONEEN LIITTÄMINEN VARAUKSEEN 
+        String osat[] = nimi.split(" ");
+        String etuNimi = osat[0];
+        String sukuNimi = osat[1];
         
-        // kalleimman huoneen selvittäminen
-             
-          
-            java.sql.Date sAlku = java.sql.Date.valueOf(alku);
+        Asiakas asiakas = new Asiakas(100, etuNimi, sukuNimi, puhelinnumero, sahkoposti);
+        ArrayList<Lisavaruste> objLisavarusteet = new ArrayList();
+        for(String nim : lisavarusteet){
+            int hinta = Lisavaruste.lisavarusteLista.get(nim);
+            Lisavaruste objLisavaruste = new Lisavaruste(100, nim, hinta); 
+            objLisavarusteet.add(objLisavaruste);
+        }
+        
+        ArrayList ObjOikeaIdLisavaruste = Tehtava4.selvitaLisavarusteId(objLisavarusteet);
+        
+        if(pelkkaAika == true){Tehtava4.teeVaraus(alku, loppu, asiakas, ObjOikeaIdLisavaruste);
+    }
+    }
+        
+        
+    // TEHTÄVÄ 5
+    private static void listaaVaraukset() {
+        System.out.println("Listataan varaukset");
+        System.out.println("");
 
-            java.sql.Date sLoppu = java.sql.Date.valueOf(loppu);      
-            
-            String kysely = 
-            //"select max(Huone.paivahinta), huone.numero from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?);";
-            "select max(Huone.paivahinta), huone.numero from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?) group by Huone.numero order by Huone.paivahinta desc;";
-           PreparedStatement statement = conn.prepareStatement(kysely);
-           statement.setDate(1, sLoppu);
-           statement.setDate(2, sAlku);
- 
-           
-           ResultSet resultSet = statement.executeQuery();
-           //System.out.println("varaus1@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-         
-           int numero = 0;
-           ArrayList<Integer> numerot = new ArrayList();
-           while(resultSet.next()){
-               numero = resultSet.getInt("numero"); 
-               numerot.add(numero);
-           }            
-           
-           numero = numerot.get(0);
-           System.out.println("numero: " + numero);
-           System.out.println(gKey);
-        // Huoneen ja varauksen ykilöivien avainten liittäminen HuoneVaraus tauluun  
-           
-           //System.out.println("varaus2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-           String kysely2 = 
-           "INSERT INTO HuoneVaraus (huone_numero, varaus_id) VALUES(?, ?);";
-            
-           PreparedStatement statement2 = conn.prepareStatement(kysely2);
-           System.out.println("numero: " + numero);
-           System.out.println("gKey: " + gKey);
-           statement2.setInt(1, numero);
-           statement2.setInt(2, gKey);
- 
-           statement2.executeUpdate();
-           
-           /*
-           while(resultSet2.next()){
-               int numero = resultSet.getInt("numero");            
-           }             
-           */
-           
-           
-        } catch (SQLException ex) {
-            Logger.getLogger(VarausjarjestelmaSovellus.class.getName()).log(Level.SEVERE, null, ex);
-        }                
-         
-                 
-             
-          
-      }//==========================================================================================================================  
+        // alla olevassa esimerkissä oletetaan, että tietokannassa on 
+        // kolme varausta
+        /*
+        System.out.println("Essi Esimerkki, essi@esimerkki.net, 2019-02-14, 2019-02-15, 1 päivä, 2 lisävarustetta, 1 huone. Huoneet:");
+        System.out.println("\tCommodore, 128, 229 euroa");
+        System.out.println("\tYhteensä: 229 euroa");
+        System.out.println("");
+        System.out.println("Anssi Asiakas, anssi@asiakas.net, 2019-02-14, 2019-02-15, 1 päivä, 0 lisävarustetta, 1 huone. Huoneet:");
+        System.out.println("\tSuperior, 705, 159 euroa");
+        System.out.println("\tYhteensä: 159 euroa");
+        System.out.println("");
+        System.out.println("Anssi Asiakas, anssi@asiakas.net, 2020-03-18, 2020-03-21, 3 päivää, 6 lisävarustetta, 2 huonetta. Huoneet:");
+        System.out.println("\tSuperior, 705, 159 euroa");
+        System.out.println("\tCommodore, 128, 229 euroa");
+        System.out.println("\tYhteensä: 1164 euroa");
+        */
 
-    
-    
-    
+    }
+
+    private static void tilastoja(Scanner lukija) {
+        System.out.println("Mitä tilastoja tulostetaan?");
+        System.out.println("");
+
+        // tilastoja pyydettäessä käyttäjältä kysytään tilasto
+        System.out.println(" 1 - Suosituimmat lisävarusteet");
+        System.out.println(" 2 - Parhaat asiakkaat");
+        System.out.println(" 3 - Varausprosentti huoneittain");
+        System.out.println(" 4 - Varausprosentti huonetyypeittäin");
+
+        System.out.println("Syötä komento: ");
+        int komento = Integer.valueOf(lukija.nextLine());
+
+        if (komento == 1) {
+            suosituimmatLisavarusteet();
+        } else if (komento == 2) {
+            parhaatAsiakkaat();
+        } else if (komento == 3) {
+            varausprosenttiHuoneittain(lukija);
+        } else if (komento == 4) {
+            varausprosenttiHuonetyypeittain(lukija);
+        }
+    }
+
+    private static void suosituimmatLisavarusteet() {
+        System.out.println("Tulostetaan suosituimmat lisävarusteet");
+        System.out.println("");
+
+        // alla oletetaan, että lisävarusteita on vain muutama
+        // mikäli tietokannassa niitä on enemmän, tulostetaan 10 suosituinta
+        System.out.println("Teekannu, 2 varausta");
+        System.out.println("Kahvinkeitin, 2 varausta");
+        System.out.println("Silitysrauta, 1 varaus");
+    }
+
+    private static void parhaatAsiakkaat() {
+        System.out.println("Tulostetaan parhaat asiakkaat");
+        System.out.println("");
+
+        // alla oletetaan, että asiakkaita on vain 2
+        // mikäli tietokannassa niitä on enemmän, tulostetaan asiakkaita korkeintaan 10
+        System.out.println("Anssi Asiakas, anssi@asiakas.net, +358441231234, 1323 euroa");
+        System.out.println("Essi Esimerkki, essi@esimerkki.net, +358443214321, 229 euroa");
+    }
+
+    private static void varausprosenttiHuoneittain(Scanner lukija) {
+        System.out.println("Tulostetaan varausprosentti huoneittain");
+        System.out.println("");
+
+        System.out.println("Mistä lähtien tarkastellaan?");
+        LocalDateTime alku = LocalDateTime.parse(lukija.nextLine() + "-01 " + "16:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        System.out.println("Mihin asti tarkastellaan?");
+        LocalDateTime loppu = LocalDateTime.parse(lukija.nextLine() + "-01 " + "10:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        // alla esimerkkitulostus
+        System.out.println("Tulostetaan varausprosentti huoneittain");
+        System.out.println("Excelsior, 604, 119 euroa, 0.0%");
+        System.out.println("Excelsior, 605, 119 euroa, 0.0%");
+        System.out.println("Superior, 705, 159 euroa, 22.8%");
+        System.out.println("Commodore, 128, 229 euroa, 62.8%");
+    }
+
+    private static void varausprosenttiHuonetyypeittain(Scanner lukija) {
+        System.out.println("Tulostetaan varausprosentti huonetyypeittäin");
+        System.out.println("");
+
+        System.out.println("Mistä lähtien tarkastellaan?");
+        LocalDateTime alku = LocalDateTime.parse(lukija.nextLine() + "-01 " + "16:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        System.out.println("Mihin asti tarkastellaan?");
+        LocalDateTime loppu = LocalDateTime.parse(lukija.nextLine() + "-01 " + "10:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        // alla esimerkkitulostus
+        System.out.println("Tulostetaan varausprosentti huonetyypeittän");
+        System.out.println("Excelsior, 0.0%");
+        System.out.println("Superior, 22.8%");
+        System.out.println("Commodore, 62.8%");
+    }
+
 }
-
-
-
-           
-           
-           /*
-           while(resultSet.next()){
-               int numero = resultSet.getInt("numero");
-               String tyyppi = resultSet.getString("tyyppi");
-               int paivahinta = resultSet.getInt("paivahinta");            
-               
-               System.out.println("|Numero: " + numero + " |Tyyppi: " + tyyppi + " |Päivähinta: " + paivahinta);
-           }   
-           */
-
-
-           /*
-           while(resultSet.next()){
-               int numero = resultSet.getInt("numero");
-               String tyyppi = resultSet.getString("tyyppi");
-               int paivahinta = resultSet.getInt("paivahinta");            
-               
-               System.out.println("|Numero: " + numero + " |Tyyppi: " + tyyppi + " |Päivähinta: " + paivahinta);
-           }   
-           */
-
-           /*
-           while(resultSet2.next()){
-               int numero = resultSet.getInt("numero");            
-           }             
-           */
