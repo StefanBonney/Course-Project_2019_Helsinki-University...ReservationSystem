@@ -46,7 +46,7 @@ public class AsiakasDao implements Dao<Asiakas, Integer> {
         ResultSet generatedKeys = stmt.getGeneratedKeys();
         if(generatedKeys.next()) {
             id = generatedKeys.getInt(1);
-            System.out.println(id + "@@@@@@@@@@@@@@@@id");
+            System.out.println(id + "@id");
         }
         
         
