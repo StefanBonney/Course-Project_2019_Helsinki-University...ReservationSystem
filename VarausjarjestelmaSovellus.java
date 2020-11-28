@@ -61,7 +61,7 @@ public class VarausjarjestelmaSovellus implements CommandLineRunner {
         System.out.println("#############################################################################[TEST_DAO]");        
         TestDao.testHuone();
         
-        System.out.println("#######################################################################[TEST_TEHTÄVÄ[1]");
+        System.out.println("#######################################################################[TEST_TEHTÄVÄ[1][HOTELLIHUONEEN TALLENNUS]");
         System.out.println("\n Lisätään uusi huone - numero: 103, Tyyppi: Moderate, Hinta: 50 \n");
         
         Huone huone = new Huone(103, "Moderate", 50);
@@ -69,12 +69,12 @@ public class VarausjarjestelmaSovellus implements CommandLineRunner {
         
         alustus.tulostaTaulujenData();
         
-        System.out.println("#######################################################################[TEST_TEHTÄVÄ[2]");
+        System.out.println("#######################################################################[TEST_TEHTÄVÄ[2][HOTELLIHUONEIDEN LISTAUS]");
         
         System.out.println("\n Listataan kaikki huoneet \n");
         Tehtava2.listaaHuoneet();
         
-        System.out.println("#######################################################################[TEST_TEHTÄVÄ[3]");
+        System.out.println("#######################################################################[TEST_TEHTÄVÄ[3][HOTELLIHUONEIDEN LISTAUS]");
         
         System.out.println("---------------------------[ilman tyyppi/hinta]");
         System.out.println("\nHaetaan huoneet aikavälillä 2010-01-01 - 2010-01-28\n");
@@ -91,8 +91,7 @@ public class VarausjarjestelmaSovellus implements CommandLineRunner {
         Tehtava3.haeHuoneet(alku , loppu, "Sviitti", 180);
   
 
-        System.out.println("#######################################################################[TEST_TEHTÄVÄ[4]");        
-        //** Käyttöliittymän toiminnallisuus ei vielä toteutettu
+        System.out.println("#######################################################################[TEST_TEHTÄVÄ[4][VARAUKSEN TEKEMINEN]");        
         
         
         System.out.println("---------------------------[ilman tyyppi/hinta]");
@@ -124,12 +123,12 @@ public class VarausjarjestelmaSovellus implements CommandLineRunner {
         System.out.println("----------------------------[kaikilla parametereillä(tyyppi/hinta mukana)]");        
         
         
-        System.out.println("#######################################################################[TEST_TEHTÄVÄ[5]");         
+        System.out.println("#######################################################################[TEST_TEHTÄVÄ[5][VARAUSTEN LISTAAMINEN]");         
         
         listaaVaraukset();
       
         
-        System.out.println("########################################################################################");
+        System.out.println("_____________________________________________________________________");
                
         
         alustus.tulostaTaulujenData();        
@@ -139,27 +138,6 @@ public class VarausjarjestelmaSovellus implements CommandLineRunner {
         tekstikayttoliittyma.kaynnista(lukija);
         
     }
-       
-
-    
-    //#########################################################################[TEHTÄVÄ][1][HOTELLIHUONEEN TALLENNUS] 
-    
-    //#######################################################################[TEHTÄVÄ][2][HOTELLIHUONEIDEN LISTAUS] 
-    
-
-    
-      //#####################################################################[TEHTÄVÄ][3][HOTELLIHUONEIDEN LISTAUS]       
-      
-      //#####################################################################[TEHTÄVÄ][4][VARAUKSEN TEKEMINEN]        
- 
-      
-      
-      
-
-      
-      //#####################################################################[TEHTÄVÄ][5][VARAUSTEN LISTAAMINEN]  
-        
-        
         
        public static void listaaVaraukset(){
            
@@ -219,21 +197,13 @@ public class VarausjarjestelmaSovellus implements CommandLineRunner {
            
            
            
-           
-           
-           
-           
+
            
        } 
         
         
         
       
-      
-      
-      
-      
-
     
     
 }
