@@ -30,8 +30,6 @@ public class HuoneDao implements Dao<Huone, Integer>{
         return this.hNum;
     }   
     
-    
-    
     public void setGKey(int gKey){
         this.gKey = gKey;
     }
@@ -52,18 +50,6 @@ public class HuoneDao implements Dao<Huone, Integer>{
         
  
         stmt.executeUpdate();
-        
-        /*
-        int id = -1;
-        ResultSet generatedKeys = stmt.getGeneratedKeys();
-        if(generatedKeys.next()) {
-            id = generatedKeys.getInt(1);
-            System.out.println(id + "@@@@@@@@@@@@@@@@id");
-        }
-        
-        
-        setGKey(id);
-        */
         
         setHNum(huone.getNumero());
 
@@ -105,26 +91,9 @@ public class HuoneDao implements Dao<Huone, Integer>{
         stmt.setInt(3, huone.getPaivahinta());  
         stmt.setInt(4, huone.getNumero());
         
-        
-        
         stmt.executeUpdate();
         
-        return read(huone.getNumero());
-        
-        /*
-        System.out.println("numero: " + huone.getNumero());
-        
-        int key = huone.getNumero();
-        
-        String query = "UPDATE Huone SET tyyppi = ?, paivahinta = ? WHERE numero = ?";
-        
-        jdbcTemplate.update(query,
-        huone.getTyyppi(), huone.getPaivahinta(), key
-        );
-        
-        return read(key);
-        */
-        
+        return read(huone.getNumero());    
     }    
     
     @Override
@@ -136,15 +105,7 @@ public class HuoneDao implements Dao<Huone, Integer>{
         PreparedStatement stmt = conn.prepareStatement(deleteSQL);
         stmt.setInt(1, key);
         
-        
         stmt.executeUpdate();
-        
-        
-        
-        /*
-        jdbcTemplate.update("DELETE FROM Huone WHERE numero = ?", key);
-                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@33333" );
-        */
     }
     
     @Override
@@ -169,29 +130,6 @@ public class HuoneDao implements Dao<Huone, Integer>{
             huoneet.add(huone);
         }
         
-        
-            
-            return huoneet;
-        /*
-        List<Huone> huoneet = jdbcTemplate.query(
-                "SELECT * FROM Huone",
-                (rs, rowNum) -> new Huone(rs.getInt("numero"), rs.getString("tyyppi"), rs.getInt("paivahinta"))
-        );
-        */
-        
-        
-        
-        /*
-        List<Asiakas> asiakkaat = jdbcTemplate.query(
-                "SELECT * FROM Asiakas",
-                (rs, rowNum) -> new Asiakas(rs.getInt("id"), rs.getString("nimi"), rs.getString("puhelinnumero"), 
-                rs.getString("katuosoite"), rs.getInt("postinumero"), rs.getString("postitoimipaikka"))
-        );
-        */        
-
-        //if(huoneet.isEmpty()){return null;}
-        
-        //return huoneet;        
-        
+            return huoneet;     
     }
 }
