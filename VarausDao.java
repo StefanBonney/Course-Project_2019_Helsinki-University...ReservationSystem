@@ -51,31 +51,14 @@ public class VarausDao implements Dao<Varaus, Integer> {
         stmt.setInt(3, varaus.getAsiakas().getId());       
  
         stmt.executeUpdate();
-        
-        /*
-        PreparedStatement stmt2 = conn.prepareStatement(
-        "SELECT COUNT(*) AS key FROM Varaus;");
-        ResultSet rs = stmt2.executeQuery();
-        /*
-        if(!rs.next()){
-            System.out.println("ongelmia");
-            return;
-        }
-        */
-
-        /*
-        int key = rs.getInt("key");
-  
-                System.out.println("Key " + key);
-        */        
+              
                 
-        
         ArrayList<Integer> genkeysArr = new ArrayList();
         int id = -1;
         ResultSet generatedKeys = stmt.getGeneratedKeys();
         if(generatedKeys.next()) {
             id = generatedKeys.getInt(1);
-            System.out.println(id + "@@@@@@@@@@@@@@@@id");
+            System.out.println(id + "@id");
             genkeysArr.add(id);
         }
         
@@ -125,6 +108,7 @@ public class VarausDao implements Dao<Varaus, Integer> {
         
     }      
     
+        
     @Override
     public Varaus update(Varaus varaus) throws SQLException {
         
@@ -140,14 +124,11 @@ public class VarausDao implements Dao<Varaus, Integer> {
         stmt.setInt(3, varaus.getAsiakas().getId());  
         stmt.setInt(4, varaus.getId());
         
-        
-        
         stmt.executeUpdate();
         
         return read(varaus.getId());    
 
     }  
-    
     
     
     @Override
@@ -160,8 +141,6 @@ public class VarausDao implements Dao<Varaus, Integer> {
         stmt.setInt(1, key);
         
         stmt.executeUpdate();
-        
-        
     }   
 
 
@@ -196,8 +175,7 @@ public class VarausDao implements Dao<Varaus, Integer> {
             Varaus varaus = new Varaus(id, lAlku, lLoppu, asiakas);
             varaukset.add(varaus);
         }
-        
-        
+          
             return varaukset;
               
     }    
