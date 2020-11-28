@@ -89,17 +89,7 @@ public class VarausjarjestelmaSovellus implements CommandLineRunner {
         LocalDate loppu2 = LocalDate.of(2010,01,28);
 
         Tehtava3.haeHuoneet(alku , loppu, "Sviitti", 180);
-        /*//TOIMI
-        //jdbcTemplate.update("INSERT INTO Asiakas (etuNimi, sukuNimi, puhelinnumero, sahkoposti) VALUES (?, ?, ?, ?)", "Jari", "B", "040-5667", "jari.b@gmail.com");
-        //jdbcTemplate.update("INSERT INTO Asiakas (etuNimi, sukuNimi, puhelinnumero, sahkoposti) VALUES (?, ?, ?, ?)", "Matti", "C", "040-8878", "matti.c@gmail.com");        
-        
-        jdbcTemplate.query(
-                "SELECT * FROM Asiakas;",
-                (rs, rowNum) -> rs.getInt("id") + rs.getString("etuNimi") + rs.getString("sukuNimi") + rs.getString("puhelinnumero") + rs.getString("sahkoposti") 
-        ).forEach(System.out::println);        
-        */
-        
-        //System.out.println("----------------------------[pelkästään ajalla]");        
+  
 
         System.out.println("#######################################################################[TEST_TEHTÄVÄ[4]");        
         //** Käyttöliittymän toiminnallisuus ei vielä toteutettu
@@ -137,8 +127,7 @@ public class VarausjarjestelmaSovellus implements CommandLineRunner {
         System.out.println("#######################################################################[TEST_TEHTÄVÄ[5]");         
         
         listaaVaraukset();
-        
-        System.out.println("#######################################################################[TEST_TEHTÄVÄ[6]");  
+      
         
         System.out.println("########################################################################################");
                
