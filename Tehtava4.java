@@ -37,7 +37,8 @@ public class Tehtava4 {
     @Autowired
     JdbcTemplate jdbcTemplate;   
     
-    public static ArrayList<Lisavaruste> selvitaLisavarusteId(List<Lisavaruste> objLisavarusteet){//=============================================================================[LISÄVARUSTEEN ID:N SELVITTÄMINEN]
+    //================================================================================================================[LISÄVARUSTEEN ID:N SELVITTÄMINEN]
+    public static ArrayList<Lisavaruste> selvitaLisavarusteId(List<Lisavaruste> objLisavarusteet){
         
         ArrayList ObjOikeaIdLisavaruste = new ArrayList();        
         
@@ -157,7 +158,6 @@ public class Tehtava4 {
         java.sql.Date sLoppu = java.sql.Date.valueOf(loppu);      
             
         String kysely = 
-        //"select max(Huone.paivahinta), huone.numero from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?);";
         "select max(Huone.paivahinta), huone.numero from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?) group by Huone.numero order by Huone.paivahinta desc;";
         PreparedStatement statement = conn.prepareStatement(kysely);
         statement.setDate(1, sLoppu);
@@ -211,12 +211,12 @@ public class Tehtava4 {
     
     
 
-        //==============================================================================================================[VARAUS AJALA, HUONETYYPILLÄ JA MAKSIMIHINNALLA]
-        public static void teeVaraus(LocalDate alku, LocalDate loppu, String tyyppi, int korkeinHinta, Asiakas asiakas, List<Lisavaruste> lisavarusteet){
+      //==============================================================================================================[VARAUS AJALA, HUONETYYPILLÄ JA MAKSIMIHINNALLA]
+      public static void teeVaraus(LocalDate alku, LocalDate loppu, String tyyppi, int korkeinHinta, Asiakas asiakas, List<Lisavaruste> lisavarusteet){
           
           
          
-        //[A] VAPAIDEN HUONEIDEN MÄÄRÄN LISTAUS HAKUEHTOIHIN PERUSTUEN
+         //--------------------------------------------------------------[A] VAPAIDEN HUONEIDEN MÄÄRÄN LISTAUS HAKUEHTOIHIN PERUSTUEN
           
          try (Connection conn = DriverManager.getConnection("jdbc:h2:./hotelliketju", "sa", "")) {         
           
@@ -244,9 +244,9 @@ public class Tehtava4 {
         } catch (SQLException ex) {
             Logger.getLogger(VarausjarjestelmaSovellus.class.getName()).log(Level.SEVERE, null, ex);
         }          
-          
+                
+        //-------------------------------------------------------------[B] KÄYTTÄJÄN LISÄÄMINEN / PäIVITTÄMINEN
          
-        //[B] KÄYTTÄJÄN LISÄÄMINEN / PäIVITTÄMINEN
         try (Connection conn = DriverManager.getConnection("jdbc:h2:./hotelliketju", "sa", "")) {                  
         AsiakasDao asiakasDao = new AsiakasDao();
          
@@ -254,32 +254,29 @@ public class Tehtava4 {
         else{asiakasDao.create(asiakas);}
          
 
-        //[C] VARAUKSEN LISÄÄMINEN
+        //-------------------------------------------------------------[C] VARAUKSEN LISÄÄMINEN
         
         Varaus varaus = new Varaus(alku, loppu,asiakas);
         VarausDao varausDao = new VarausDao();
         varausDao.create(varaus);
         int gKey = varausDao.getGKey();
-       System.out.println("gkey" + gKey);        
-        //[D] HUONEEN LIITTÄMINEN VARAUKSEEN 
-        
-        // kalleimman huoneen selvittäminen
-             
+        System.out.println("gkey" + gKey);        
           
+        //--------------------------------------------------------------[D] HUONEEN LIITTÄMINEN VARAUKSEEN 
+        
+          // kalleimman huoneen selvittäminen
+                
             java.sql.Date sAlku = java.sql.Date.valueOf(alku);
 
             java.sql.Date sLoppu = java.sql.Date.valueOf(loppu);      
             
-            String kysely = 
-            //"select max(Huone.paivahinta), huone.numero from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?);";
+            String kysely =
             "select max(Huone.paivahinta), huone.numero from Huone where not exists (select * from HuoneVaraus join Varaus ON HuoneVaraus.varaus_id = Varaus.id where HuoneVaraus.huone_numero = Huone.numero and Varaus.alku > ? and Varaus.loppu < ?) group by Huone.numero order by Huone.paivahinta desc;";
            PreparedStatement statement = conn.prepareStatement(kysely);
            statement.setDate(1, sLoppu);
            statement.setDate(2, sAlku);
  
-           
            ResultSet resultSet = statement.executeQuery();
-           //System.out.println("varaus1@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
          
            int numero = 0;
            ArrayList<Integer> numerot = new ArrayList();
@@ -291,9 +288,9 @@ public class Tehtava4 {
            numero = numerot.get(0);
            System.out.println("numero: " + numero);
            System.out.println(gKey);
-        // Huoneen ja varauksen ykilöivien avainten liittäminen HuoneVaraus tauluun  
+        
+         // Huoneen ja varauksen ykilöivien avainten liittäminen HuoneVaraus tauluun  
            
-           //System.out.println("varaus2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
            String kysely2 = 
            "INSERT INTO HuoneVaraus (huone_numero, varaus_id) VALUES(?, ?);";
             
@@ -305,21 +302,13 @@ public class Tehtava4 {
  
            statement2.executeUpdate();
            
-           /*
-           while(resultSet2.next()){
-               int numero = resultSet.getInt("numero");            
-           }             
-           */
-           
            
         } catch (SQLException ex) {
             Logger.getLogger(VarausjarjestelmaSovellus.class.getName()).log(Level.SEVERE, null, ex);
         }                
          
                  
-             
-          
-      }//==========================================================================================================================  
+     }//==========================================================================================================================  
 
     
     
@@ -328,31 +317,4 @@ public class Tehtava4 {
 
 
 
-           
-           
-           /*
-           while(resultSet.next()){
-               int numero = resultSet.getInt("numero");
-               String tyyppi = resultSet.getString("tyyppi");
-               int paivahinta = resultSet.getInt("paivahinta");            
-               
-               System.out.println("|Numero: " + numero + " |Tyyppi: " + tyyppi + " |Päivähinta: " + paivahinta);
-           }   
-           */
-
-
-           /*
-           while(resultSet.next()){
-               int numero = resultSet.getInt("numero");
-               String tyyppi = resultSet.getString("tyyppi");
-               int paivahinta = resultSet.getInt("paivahinta");            
-               
-               System.out.println("|Numero: " + numero + " |Tyyppi: " + tyyppi + " |Päivähinta: " + paivahinta);
-           }   
-           */
-
-           /*
-           while(resultSet2.next()){
-               int numero = resultSet.getInt("numero");            
-           }             
-           */
+ 
