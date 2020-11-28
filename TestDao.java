@@ -46,7 +46,7 @@ public class TestDao {
         
         int hNum = huoneDao.getHNum();
         
-        //System.out.println(gKey + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@" );
+        //System.out.println(gKey + "@gKey" );
         
         Huone h2 = huoneDao.read(hNum);
         System.out.println("Luetun huoneen numero: " + h2.getNumero());
@@ -54,28 +54,11 @@ public class TestDao {
         Huone h3 = new Huone(503, "Sviitti", 180);
         huoneDao.update(h3);
         
-        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@1111" );
-        
         Huone h4 = new Huone(504, "Sviitti", 2000);
         huoneDao.create(h4);
         int hNum2 = huoneDao.getHNum();
         
-        /*
-        List<Huone> huoneet1 = huoneDao.list();
-        
-        for(Huone h : huoneet1){
-            System.out.print("Numero: " + h.getNumero() + "    ");
-            System.out.println("Tyyppi: " + h.getTyyppi() + "    ");
-            System.out.println("Paivahinta: " + h.getPaivahinta());
-            System.out.println();
-        }
-        */
-        
-        
-        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@2222" );
         huoneDao.delete(504);
-        
-        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@44444" );
         
         List<Huone> huoneet2 = huoneDao.list();
         
