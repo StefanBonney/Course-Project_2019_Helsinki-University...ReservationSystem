@@ -46,13 +46,11 @@ public class LisavarusteDao implements Dao<Lisavaruste, Integer> {
         ResultSet generatedKeys = stmt.getGeneratedKeys();
         if(generatedKeys.next()) {
             id = generatedKeys.getInt(1);
-            System.out.println(id + "@@@@@@@@@@@@@@@@id");
+            System.out.println(id + "@id");
         }
-        
         
         setGKey(id);
         
-
         stmt.close();
         conn.close();
     }    
@@ -94,7 +92,6 @@ public class LisavarusteDao implements Dao<Lisavaruste, Integer> {
         stmt.executeUpdate();
         
         return read(lisavaruste.getId());    
-
     }
     
     
@@ -108,8 +105,7 @@ public class LisavarusteDao implements Dao<Lisavaruste, Integer> {
         PreparedStatement stmt = conn.prepareStatement(deleteSQL);
         stmt.setInt(1, key);
         
-        stmt.executeUpdate();
-                
+        stmt.executeUpdate();          
     }        
     
     
