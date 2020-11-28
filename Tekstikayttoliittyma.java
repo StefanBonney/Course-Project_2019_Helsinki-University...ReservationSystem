@@ -115,7 +115,7 @@ public class Tekstikayttoliittyma {
         else{Tehtava3.haeHuoneet(alku, loppu, tyyppi, maksimihinta);}
         
 
-//System.out.println("Excelsior, 604, 119 euroa");
+        //System.out.println("Excelsior, 604, 119 euroa");
         //System.out.println("Excelsior, 605, 119 euroa");
 
         // vaihtoehtoisesti, mikäli yhtäkään huonetta ei ole vapaana, ohjelma
