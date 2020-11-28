@@ -8,8 +8,6 @@ public class Huone {
     private String tyyppi;
     private int paivahinta;
     
-    //private ArrayList<Integer> HuoneenVaraukset;
-    
     public Huone(int numero, String tyyppi, int paivahinta){
         this.numero = numero;
         this.tyyppi = tyyppi;
